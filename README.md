@@ -1,5 +1,10 @@
 
-npm run dev
+
+12
+$ npm run deploy 
+to redeploy the app
+
+npm run dev (og)
 
 # React + Vite
 
