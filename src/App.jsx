@@ -7,12 +7,15 @@ import Referral from './Referral';
 import AdminCRM from './AdminCRM';
 import Navbar from './Navbar';
 import Chatbot from './Chatbot';
+import ClientProfile from './ClientProfile';
+import { initialCrmData } from './crmData';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [user, setUser] = useState(null);
   const [showChatbot, setShowChatbot] = useState(false);
+   const [crmData, setCrmData] = useState(initialCrmData);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -23,6 +26,19 @@ const App = () => {
       setIsAdmin(parsedUser.role === 'admin');
     }
   }, []);
+   useEffect(() => {
+    const storedCrm = localStorage.getItem('crmData');
+    if (storedCrm) {
+      setCrmData(JSON.parse(storedCrm));
+    } else {
+      localStorage.setItem('crmData', JSON.stringify(initialCrmData));
+    }
+  }, []);
+
+  const updateCrmData = (newData) => {
+    localStorage.setItem('crmData', JSON.stringify(newData));
+    setCrmData(newData);
+  };
 
   const handleLogin = (userData) => {
     localStorage.setItem('user', JSON.stringify(userData));
@@ -47,7 +63,9 @@ const App = () => {
         <Route path="/login" element={!isLoggedIn ? <Login onLogin={handleLogin} /> : <Navigate to="/" />} />
         <Route path="/register" element={!isLoggedIn ? <Register onRegister={handleLogin} /> : <Navigate to="/" />} />
         <Route path="/referral" element={isLoggedIn ? <Referral user={user} setUser={setUser} /> : <Navigate to="/login" />} />
-        <Route path="/admin-crm" element={isAdmin ? <AdminCRM /> : <Navigate to="/login" />} />
+        {/* <Route path="/admin-crm" element={isAdmin ? <AdminCRM /> : <Navigate to="/login" />} /> */}
+        <Route path="/admin-crm" element={isAdmin ? <AdminCRM crmData={crmData} updateCrmData={updateCrmData} /> : <Navigate to="/login" />} />
+        <Route path="/admin-crm/client/:id" element={isAdmin ? <ClientProfile crmData={crmData} /> : <Navigate to="/login" />} />
       </Routes>
 
       </div>
