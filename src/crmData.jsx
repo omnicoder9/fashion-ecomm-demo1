@@ -11,7 +11,8 @@ export const initialCrmData = {
       referred_by_id: null,
       vip_status: true,
       communication_pref: "Email",
-      notes: "Prefers slim fit, upcoming wedding in June"
+      notes: "Prefers slim fit, upcoming wedding in June",
+      no_show_count: 0
     },
     {
       client_id: "a9c6eed8-85e2-48e6-9ece-bc4e1723322f",
@@ -24,7 +25,8 @@ export const initialCrmData = {
       referred_by_id: "b4d642ad-078a-4b20-b0bb-0dc5b05f24b3",
       vip_status: false,
       communication_pref: "SMS",
-      notes: "Allergic to wool"
+      notes: "Allergic to wool",
+      no_show_count: 0
     },
     {
       client_id: "eb9c5918-9361-485c-9c93-3ad1943c1dca",
@@ -37,7 +39,8 @@ export const initialCrmData = {
       referred_by_id: "a9c6eed8-85e2-48e6-9ece-bc4e1723322f",
       vip_status: true,
       communication_pref: "Phone",
-      notes: "Corporate executive, needs quick turnarounds"
+      notes: "Corporate executive, needs quick turnarounds",
+      no_show_count: 0
     }
   ],
   measurements: [
@@ -122,6 +125,26 @@ export const initialCrmData = {
       client_id: "eb9c5918-9361-485c-9c93-3ad1943c1dca",
       activity_type: "Phone Call", subject: "Consultation Follow-up", body: "Discussed fabric options",
       created_by: "admin", created_at: "2024-12-15T09:00:00Z"
+    }
+  ],
+  appointments: [ 
+    {
+      appointment_id: "appt-1",
+      client_id: "b4d642ad-078a-4b20-b0bb-0dc5b05f24b3",
+      type: "Consultation",
+      start_time: "2025-12-23T11:00:00", // Dec 23, 2025 11:00 AM
+      duration_minutes: 60,
+      status: "Scheduled",
+      notes: "Initial suit consultation"
+    },
+    {
+      appointment_id: "appt-2",
+      client_id: "a9c6eed8-85e2-48e6-9ece-bc4e1723322f",
+      type: "Fitting",
+      start_time: "2025-12-24T14:30:00",
+      duration_minutes: 30,
+      status: "Scheduled",
+      notes: ""
     }
   ],
    fabrics: [

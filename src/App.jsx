@@ -71,6 +71,20 @@ const App = () => {
     }
     setLoading(false);
   }, []);
+  useEffect(() => {
+  const stored = localStorage.getItem('crmData');
+  if (stored) {
+    const parsed = JSON.parse(stored);
+    setCrmData({
+      ...initialCrmData, // ensures new keys like appointments
+      ...parsed,
+      appointments: parsed.appointments || initialCrmData.appointments || [],
+      activities: parsed.activities || initialCrmData.activities || [],
+    });
+  } else {
+    setCrmData(initialCrmData);
+  }
+}, []);
 
   const updateCrmData = (newData) => {
     localStorage.setItem('crmData', JSON.stringify(newData));

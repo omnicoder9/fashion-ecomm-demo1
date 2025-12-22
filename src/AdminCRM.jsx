@@ -6,7 +6,8 @@ import MergeClients from './MergeClients';
 import ReferralTree from './ReferralTree';
 import OrderWizard from './OrderWizard';
 import OrderPipeline from './OrderPipeline';
-import { initialCrmData } from './crmData';
+// import { initialCrmData } from './crmData';
+import CreateAppointment from './CreateAppointment';
 
 
 
@@ -16,6 +17,8 @@ const AdminCRM = ({ crmData, updateCrmData }) => {
   const [showMerge, setShowMerge] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
    const [showWizard, setShowWizard] = useState(false);
+   const [showAppointment, setShowAppointment] = useState(false);
+  const [editingAppointment, setEditingAppointment] = useState(null);
 
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
@@ -32,12 +35,41 @@ const AdminCRM = ({ crmData, updateCrmData }) => {
     }
   };
 
+  const handleMarkStatus = (apptId, newStatus, isNoShow = false) => {
+    const updatedAppointments = crmData.appointments.map((a) =>
+      a.appointment_id === apptId ? { ...a, status: newStatus } : a
+    );
+
+    let newData = { ...crmData, appointments: updatedAppointments };
+
+    if (isNoShow) {
+      const appt = crmData.appointments.find((a) => a.appointment_id === apptId);
+      const updatedClients = crmData.clients.map((c) =>
+        c.client_id === appt.client_id ? { ...c, no_show_count: (c.no_show_count || 0) + 1 } : c
+      );
+      newData = { ...newData, clients: updatedClients };
+    }
+
+    updateCrmData(newData);
+  };
+
+  
+// Safely get appointments with guards
+  const appointments = crmData.appointments || [];
+  const upcomingAppointments = appointments
+    .filter((a) => a.status === 'Scheduled')
+    .sort((a, b) => a.start_time.localeCompare(b.start_time));
+
+  const todayStr = new Date().toISOString().slice(0, 10); // e.g., '2025-12-22'
+  const todaysAppointments = upcomingAppointments.filter((a) =>
+    a.start_time.startsWith(todayStr)
+  );
   if (!crmData || !crmData.clients) {
   return <div>Loading CRM data...</div>;
 }
 
   return (
-    <div>
+    <div className="container">
       <h2>Admin CRM Dashboard</h2>
       <input
         type="text"
@@ -67,6 +99,66 @@ const AdminCRM = ({ crmData, updateCrmData }) => {
 {showWizard && <OrderWizard crmData={crmData} updateCrmData={updateCrmData} onClose={() => setShowWizard(false)} />}
 <h2>Order Pipeline (Kanban)</h2>
 <OrderPipeline crmData={crmData} updateCrmData={updateCrmData} />
+
+      <button
+        onClick={() => {
+          setEditingAppointment(null);
+          setShowAppointment(true);
+        }}
+        className="btn-primary"
+        style={{ margin: '20px 0' }}
+      >
+        New Appointment
+      </button>
+
+      <h2>Today's Appointments ({todaysAppointments.length})</h2>
+      {todaysAppointments.length === 0 ? (
+        <p>No appointments today.</p>
+      ) : (
+        <ul style={{ listStyle: 'none', padding: 0 }}>
+          {todaysAppointments.map((appt) => {
+            const client = crmData.clients.find((c) => c.client_id === appt.client_id);
+            const time = new Date(appt.start_time).toLocaleString();
+            return (
+              <li key={appt.appointment_id} className="card" style={{ marginBottom: '15px' }}>
+                <strong>{time}</strong> – {client?.first_name} {client?.last_name} – {appt.type}
+                <br />
+                {appt.notes && <em>{appt.notes}</em>}
+                <div style={{ marginTop: '10px' }}>
+                  <button
+                    onClick={() => {
+                      setEditingAppointment(appt);
+                      setShowAppointment(true);
+                    }}
+                    style={{ marginRight: '8px' }}
+                  >
+                    Edit/Reschedule
+                  </button>
+                  <button onClick={() => handleMarkStatus(appt.appointment_id, 'Completed')}>
+                    Mark Completed
+                  </button>
+                  <button onClick={() => handleMarkStatus(appt.appointment_id, 'No-show', true)} style={{ marginLeft: '8px', color: 'red' }}>
+                    Mark No-Show
+                  </button>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      <h2>Upcoming Appointments</h2>
+      {/* Similar list as above for all upcoming */}
+
+      {showAppointment && (
+        <CreateAppointment
+          crmData={crmData}
+          updateCrmData={updateCrmData}
+          onClose={() => setShowAppointment(false)}
+          editingAppointment={editingAppointment}
+        />
+      )}
+
     </div>
   );
 };
